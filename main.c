@@ -1,118 +1,121 @@
-#include <stdio.h>
-#include <time.h>
+#include <stdio.h> 
 #include <stdlib.h>
+#include <time.h>
 
-void troca(int *x, int *y){ 
-   int temp;
-   temp=*x;
-   *x=*y;
-   *y=temp;
+long long quicksort_trocas = 0;
+long long insertionsort_trocas = 0;
+
+void troca(int *x, int *y) {
+    int temp = *x;
+    *x = *y;
+    *y = temp;
+    quicksort_trocas++;
 }
 
-int particionamento(int vetor[], int left, int rigth){
-    int mediana = (left + (rigth - left)/2);
-    troca(&vetor[mediana], &vetor[rigth]);
-    int pivo = vetor[rigth];
-    int i = left-1;
-
-    for( int j = left; j < rigth; j++){
-
-        if(vetor[j] < pivo){
-            i++;
-            troca(&vetor[j], &vetor[i]);        
-        }
-        troca(&vetor[i+1], &vetor[rigth]);    
-    }
-   
-    return(i + 1);
-}
-
-void quickSort(int vetor[], int left, int rigth, clock_t *tempo){
-    clock_t inicio = clock();
-    if(left < rigth){
-        int indice_pivo = particionamento(vetor, left, rigth);
-        quickSort(vetor, left, indice_pivo - 1, tempo );
-        quickSort(vetor, indice_pivo + 1, rigth, tempo);
-    }
-    *tempo = clock() - inicio;
-}
-
-void gerarVetorCrescente(int vetor[], int tamanhoVetor) {
-
-    for (int i = 0; i < tamanhoVetor; i++) {
+void gerarVetorCrescente(int vetor[], int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
         vetor[i] = i + 1;
     }
 }
 
-void gerarVetorDecrescente(int vetor[], int tamanhoVetor) {
-
-    for (int i = 0; i < tamanhoVetor; i++) {
-        vetor[i] = tamanhoVetor - i;
+void gerarVetorDecrescente(int vetor[], int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        vetor[i] = tamanho - i;
     }
 }
 
-void gerarVetoraleatorio(int vetor[], int tamanhoVetor) {
-    
-    srand (time(NULL));
-    for (int i = 0; i < tamanhoVetor; i++) {
-        vetor[i] = rand() % tamanhoVetor;
+void gerarVetorAleatorio(int vetor[], int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        vetor[i] = rand() % tamanho;
     }
+}
+
+int particionamento(int vetor[], int left, int right) {
+    int mediana = left + (right - left) / 2;
+    troca(&vetor[mediana], &vetor[right]);
+    int pivo = vetor[right];
+    int i = left - 1;
+
+    for (int j = left; j < right; j++) {
+        if (vetor[j] < pivo) {
+            i++;
+            troca(&vetor[i], &vetor[j]);
+        }
+    }
+    troca(&vetor[i + 1], &vetor[right]);
+    return i + 1;
+}
+
+void quickSort(int vetor[], int left, int right) {
+    if (left < right) {
+        int indice_pivo = particionamento(vetor, left, right);
+        quickSort(vetor, left, indice_pivo - 1);
+        quickSort(vetor, indice_pivo + 1, right);
+    }
+}
+
+void insertionSort(int vetor[], int tamanho) {
+    for (int i = 1; i < tamanho; i++) {
+        int chave = vetor[i];
+        int j = i - 1;
+        while (j >= 0 && vetor[j] > chave) {
+            vetor[j + 1] = vetor[j];
+            j--;
+            insertionsort_trocas++;
+        }
+        vetor[j + 1] = chave;
+    }
+}
+
+void salvarResultados(char *arquivo, char *algoritmo, char *tipo, int tamanho, double tempo, long long trocas) {
+    FILE *fp = fopen(arquivo, "a");
+    if (fp == NULL) {
+        perror("Erro ao abrir o arquivo");
+        exit(EXIT_FAILURE);
+    }
+    fprintf(fp, "%s,%s,%d,%.2lf,%lld\n", algoritmo, tipo, tamanho, tempo, trocas);
+    fclose(fp);
 }
 
 int main() {
+    srand(time(NULL));
+    int tamanhos[] = {100, 1000, 10000, 100000, 1000000, 10000000};
+    int num_tamanhos = sizeof(tamanhos) / sizeof(tamanhos[0]);
 
-    int elementos;
-    
-    for(elementos = 100; elementos <= 10000000; elementos *= 10){
-        int *vetor = (int*)malloc(elementos * sizeof(int));
-        
-        //a)
-        gerarVetorCrescente(vetor, elementos);
+    for (int t = 0; t < num_tamanhos; t++) {
+        int tamanho = tamanhos[t];
+        int *vetor = (int *)malloc(tamanho * sizeof(int));
+        int *copia = (int *)malloc(tamanho * sizeof(int));
 
-        clock_t tempo;
-        printf("teste com %d elementos(Crescente): \n", elementos);
+        void (*geradores[])(int *, int) = {gerarVetorCrescente, gerarVetorDecrescente, gerarVetorAleatorio};
+        char *tipos[] = {"Crescente", "Decrescente", "Aleatório"};
 
-        quickSort(vetor, 0, elementos - 1, &tempo );
+        for (int tipo = 0; tipo < 3; tipo++) {
+            geradores[tipo](vetor, tamanho);
 
-        printf("Tempo do QuickSort: %.2lf milisegundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
-    
+            quicksort_trocas = 0;
+            for (int i = 0; i < tamanho; i++) copia[i] = vetor[i];
+            clock_t inicio = clock();
+            quickSort(copia, 0, tamanho - 1);
+            clock_t fim = clock();
+            salvarResultados("resultados.csv", "QuickSort", tipos[tipo], tamanho,
+                             ((double)(fim - inicio) / CLOCKS_PER_SEC) * 1000, quicksort_trocas);
+
+            if (tamanho <= 100000) {
+                insertionsort_trocas = 0;
+                for (int i = 0; i < tamanho; i++) copia[i] = vetor[i];
+                inicio = clock();
+                insertionSort(copia, tamanho);
+                fim = clock();
+                salvarResultados("resultados.csv", "InsertionSort", tipos[tipo], tamanho,
+                                 ((double)(fim - inicio) / CLOCKS_PER_SEC) * 1000, insertionsort_trocas);
+            } else {
+                salvarResultados("resultados.csv", "InsertionSort", tipos[tipo], tamanho, -1, -1);
+            }
+        }
+
         free(vetor);
-    }
-
-    printf("\n");
-
-    for(elementos = 100; elementos <= 10000000; elementos *= 10){
-        int *vetor = (int*)malloc(elementos * sizeof(int));
-        
-        //b)
-        gerarVetorDecrescente(vetor, elementos);
-
-        clock_t tempo;
-        printf("teste com %d elementos(Decrescente): \n", elementos);
-
-        quickSort(vetor, 0, elementos - 1, &tempo );
-
-        printf("Tempo do QuickSort: %.2lf milisegundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
-    
-        free(vetor);
-    }
-
-    printf("\n");
-
-     for(elementos = 100; elementos <= 10000000; elementos *= 10){
-        int *vetor = (int*)malloc(elementos * sizeof(int));
-        
-        //c)
-        gerarVetoraleatorio(vetor, elementos);
-
-        clock_t tempo;
-        printf("teste com %d elementos(aleatório): \n", elementos);
-
-        quickSort(vetor, 0, elementos - 1, &tempo );
-
-        printf("Tempo do QuickSort: %.2lf milisegundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
-    
-        free(vetor);
+        free(copia);
     }
 
     return 0;
