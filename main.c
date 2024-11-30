@@ -37,13 +37,28 @@ void quickSort(int vetor[], int left, int rigth, clock_t *tempo){
     *tempo = clock() - inicio;
 }
 
-// Função que gera um vetor em ordem crescente
 void gerarVetorCrescente(int vetor[], int tamanhoVetor) {
-    tamanhoVetor;
+
     for (int i = 0; i < tamanhoVetor; i++) {
         vetor[i] = i + 1;
     }
 }
+
+void gerarVetorDecrescente(int vetor[], int tamanhoVetor) {
+
+    for (int i = 0; i < tamanhoVetor; i++) {
+        vetor[i] = tamanhoVetor - i;
+    }
+}
+
+void gerarVetoraleatorio(int vetor[], int tamanhoVetor) {
+    
+    srand (time(NULL));
+    for (int i = 0; i < tamanhoVetor; i++) {
+        vetor[i] = rand() % tamanhoVetor;
+    }
+}
+
 int main() {
 
     int elementos;
@@ -56,6 +71,42 @@ int main() {
 
         clock_t tempo;
         printf("teste com %d elementos(Crescente): \n", elementos);
+
+        quickSort(vetor, 0, elementos - 1, &tempo );
+
+        printf("Tempo do QuickSort: %.2lf segundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
+    
+        free(vetor);
+    }
+
+    printf("\n");
+
+    for(elementos = 100; elementos <= 10000000; elementos *= 10){
+        int *vetor = (int*)malloc(elementos * sizeof(int));
+        
+        //b)
+        gerarVetorDecrescente(vetor, elementos);
+
+        clock_t tempo;
+        printf("teste com %d elementos(Decrescente): \n", elementos);
+
+        quickSort(vetor, 0, elementos - 1, &tempo );
+
+        printf("Tempo do QuickSort: %.2lf segundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
+    
+        free(vetor);
+    }
+
+    printf("\n");
+
+     for(elementos = 100; elementos <= 10000000; elementos *= 10){
+        int *vetor = (int*)malloc(elementos * sizeof(int));
+        
+        //c)
+        gerarVetoraleatorio(vetor, elementos);
+
+        clock_t tempo;
+        printf("teste com %d elementos(aleatório): \n", elementos);
 
         quickSort(vetor, 0, elementos - 1, &tempo );
 
