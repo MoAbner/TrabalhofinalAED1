@@ -39,7 +39,7 @@ void quickSort(int vetor[], int left, int rigth, clock_t *tempo){
 
 // Função que gera um vetor em ordem crescente
 void gerarVetorCrescente(int vetor[], int tamanhoVetor) {
-    tamanhoVetor = 9999900;
+    tamanhoVetor;
     for (int i = 0; i < tamanhoVetor; i++) {
         vetor[i] = i + 1;
     }
@@ -47,8 +47,8 @@ void gerarVetorCrescente(int vetor[], int tamanhoVetor) {
 int main() {
 
     int elementos;
-
-    for(elementos = 100; elementos < 10000000; elementos *= 10){
+    
+    for(elementos = 100; elementos <= 10000000; elementos *= 10){
         int *vetor = (int*)malloc(elementos * sizeof(int));
         
         //a)
@@ -62,7 +62,6 @@ int main() {
         printf("Tempo do QuickSort: %.2lf segundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
     
         free(vetor);
-        printf("sim 123");
     }
 
     return 0;
