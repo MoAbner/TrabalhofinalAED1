@@ -74,7 +74,7 @@ int main() {
 
         quickSort(vetor, 0, elementos - 1, &tempo );
 
-        printf("Tempo do QuickSort: %.2lf segundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
+        printf("Tempo do QuickSort: %.2lf milisegundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
     
         free(vetor);
     }
@@ -92,7 +92,7 @@ int main() {
 
         quickSort(vetor, 0, elementos - 1, &tempo );
 
-        printf("Tempo do QuickSort: %.2lf segundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
+        printf("Tempo do QuickSort: %.2lf milisegundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
     
         free(vetor);
     }
@@ -110,7 +110,7 @@ int main() {
 
         quickSort(vetor, 0, elementos - 1, &tempo );
 
-        printf("Tempo do QuickSort: %.2lf segundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
+        printf("Tempo do QuickSort: %.2lf milisegundos\n", ((double)tempo/CLOCKS_PER_SEC) * 1000);
     
         free(vetor);
     }
